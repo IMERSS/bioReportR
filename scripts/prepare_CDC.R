@@ -1,0 +1,15 @@
+library(dplyr)
+
+source("scripts/utils.R")
+
+raw <- timedFread("big_data/bc-cdc_full_2026-04-10.csv")
+
+newNames <- timedFread("big_data/bc-cdc_new-names_2026-04-10.csv")
+
+reduced <- raw %>% filter(!is.na(phylum) & phylum != "")
+
+timedWrite(reduced, "big_data/bc-cdc_full_2026-04-10-reduced.csv")
+
+reducedNew <- reduced %>% filter(scientificName %in% newNames$scientificName)
+
+timedWrite(reducedNew, "big_data/bc-cdc_full_2026-04-10-new-reduced.csv")
