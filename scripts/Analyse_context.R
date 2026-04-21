@@ -34,7 +34,7 @@ all_reduced <- all[!duplicated(all$scientificName), ] %>% filter(!is.na(scientif
 
 write.csv(all_reduced, "big_data/gbif-howe-context-tracheophyta-2026-03-27-reduced.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
 
-# node ../bagatelle/src/assignBNames.js big_data/gbif-howe-context-tracheophyta-2026-03-27-reduced.csv --DwCA
+# node ../imerss-bioinfo/src/assignBNames.js big_data/gbif-howe-context-tracheophyta-2026-03-27-reduced.csv --DwCA
 
 ## Stanza 3: Reconstitute original "assigned" data by joining with assigned reduced data
 
