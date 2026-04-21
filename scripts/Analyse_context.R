@@ -1,6 +1,7 @@
 library(readr)
 library(dplyr)
 library(data.table)
+library(sf)
 
 ## Stanza 1: Reduce incoming GBIF data to one row per taxa
 
@@ -13,42 +14,33 @@ read_GBIF = function (filename) {
   rawGbif
 }
 
-allcat <- read_GBIF("big_data/gbif-howe-context-all-category-2026-03-06-raw.tsv")
+all <- read_GBIF("big_data/gbif-howe-context-tracheophyta-2026-03-27-raw.tsv")
+all_sf <- st_as_sf(all, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+
+realContext = read_sf("big_data/GeoRegionV2_Terrestrial_dissolved/");
+
+all_sf_real_context <- st_filter(all_sf, realContext)
+all_real_context <- all_sf_real_context %>%
+  mutate(
+    decimalLongitude = st_coordinates(.)[, 1],
+    decimalLatitude = st_coordinates(.)[, 2]
+  ) %>%
+  st_drop_geometry()
+
 # Rough and ready, just resolve data at species level
-allcat$scientificName <- allcat$species
+all$scientificName <- all$species
 
-allcat_reduced <- allcat[!duplicated(allcat$scientificName), ] %>% filter(!is.na(scientificName))
+all_reduced <- all[!duplicated(all$scientificName), ] %>% filter(!is.na(scientificName))
 
-write.csv(allcat_reduced, "big_data/gbif-howe-context-all-category-2026-03-06-reduced.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
+write.csv(all_reduced, "big_data/gbif-howe-context-tracheophyta-2026-03-27-reduced.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
 
-## Stanza 2: Compare GBIF data without taxon restriction to that questioned, which was:
-##Ochrophyta, Plantae, Animalia, Fungi, Protozoa
-
-
-allall <- read_GBIF("big_data/gbif-howe-context-all-2026-03-06-raw.tsv")
-allall$scientificName <- allall$species
-
-allall_reduced <- allall[!duplicated(allall$species), ]
-
-write.csv(allcat_reduced, "big_data/gbif-howe-context-all-2026-03-06-reduced.csv", row.names = FALSE, na = "")
-
-s1 <- dplyr::anti_join(allcat_reduced, allall_reduced, by=c("species"))
-s2 <- dplyr::anti_join(allall_reduced, allcat_reduced, by=c("species"))
+# node ../bagatelle/src/assignBNames.js big_data/gbif-howe-context-tracheophyta-2026-03-27-reduced.csv --DwCA
 
 ## Stanza 3: Reconstitute original "assigned" data by joining with assigned reduced data
 
-assigned <- readr::read_csv("big_data/gbif-howe-context-all-category-2026-03-06-assigned.csv", col_types = cols(.default = "c")) %>% filter(!is.na(species))
+assigned <- readr::read_csv("big_data/gbif-howe-context-tracheophyta-2026-03-27-assigned.csv", col_types = cols(.default = "c")) %>% filter(!is.na(species))
 
-joined <- dplyr::left_join(allcat, assigned, by = dplyr::join_by("scientificName"), suffix = c("", ".dup")) |>
+joined <- dplyr::left_join(all_real_context, assigned, by = dplyr::join_by("scientificName"), suffix = c("", ".dup")) |>
   dplyr::select(-dplyr::ends_with(".dup"))
 
-data.table::fwrite(joined, "big_data/gbif-howe-context-all-category-2026-03-06-assigned-full.csv")
-
-## Stanza 3b: Reconstitute original "assigned" all data by joining with assigned reduced data
-
-assignedall <- readr::read_csv("big_data/gbif-howe-context-all-2026-03-06-assigned.csv", col_types = cols(.default = "c")) %>% filter(!is.na(species))
-
-joined <- dplyr::left_join(allall, assignedall, by = dplyr::join_by("scientificName"), suffix = c("", ".dup")) |>
-  dplyr::select(-dplyr::ends_with(".dup"))
-
-data.table::fwrite(joined, "big_data/gbif-howe-context-all-2026-03-06-assigned-full.csv")
+data.table::fwrite(joined, "big_data/gbif-howe-context-tracheophyta-2026-03-27-assigned-full-real-context.csv")
