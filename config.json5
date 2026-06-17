@@ -21,10 +21,41 @@
 
             components: {
                 vizLoader: {
-                    /** Paths relative to docs/story */
-                    obsFile: "../data/tabular/Howe_Sound_vascular_plant_records_consolidated_2024-11-labels.csv",
-                    taxaFile: "../data/tabular/Howe_Sound_vascular_plant_records_consolidated_2024-11-prepared-taxa.csv",
-                    regionIndirectionFile: "../data/tabular/Howe_Sound_vascular_plant_records_consolidated_2024-11-regionIndirection.csv"
+                    gradeNames: "reknitr.vizLoader.withSolow",
+                    taxonColumns: [{
+                        key: "scientificName",
+                        label: "Taxon name"
+                    }, {
+                        key: "solow_EP",
+                        label: "EP"
+                    }, {
+                        key: "infrataxon_status",
+                        label: "Infrataxon Status"
+                    }, {
+                        key: "introduction_status",
+                        label: "Introduction"
+                    }, {
+                        key: "provenance_status",
+                        label: "Has Voucher"
+                    }, {
+                        key: "provincial_concern",
+                        label: "Conservation Status"
+                    }, {
+                        key: "commonName",
+                        label: "Common Name"
+                    }, {
+                        key: "reportingStatus",
+                        label: "Reporting status",
+                    }, {
+                        key: "id",
+                        label: "ID"
+                    }, {
+                        key: "iNaturalistTaxonName",
+                        label: "Link name"
+                    }],
+                    obsFile: "../data/tabular/AHSBR_Tracheophyta_ultimate-catalogue_2026-06-16-selected-labels.csv",
+                    taxaFile: "../data/tabular/AHSBR_Tracheophyta_ultimate-merged-summary_2026-06-16-prepared-taxa.csv",
+                    regionIndirectionFile: "../data/tabular/AHSBR_Tracheophyta_ultimate-catalogue_2026-06-16-selected-regionIndirection.csv"
                 }
             },
             paneHandlers: {
@@ -77,6 +108,9 @@
                             gradeNames: ["reknitr.withResizableWidth", "reknitr.withResizableHeight", "reknitr.dataPaneWidget"]
                         }
                     }
+                },
+                Solow: {
+                    type: "reknitr.solowPaneHandler"
                 }
             }
         }
@@ -117,6 +151,9 @@
     }, {
         source: "%imerss-bioinfo/docs/js/imerss-blitz.js",
         target: "%self/static/js/imerss-blitz.js"
+    }, {
+        source: "%imerss-bioinfo/docs/js/imerss-plants.js",
+        target: "%self/static/js/imerss-plants.js"
     }, {
         source: "%imerss-bioinfo/src/client/img/Arrow-up.svg",
         target: "%self/docs/img/Arrow-up.svg"

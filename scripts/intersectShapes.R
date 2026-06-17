@@ -8,7 +8,7 @@ runDataset = "Howe";
 
 datasets <- list(
   Howe = list(
-    obs_file = "tabular_data/Howe_Sound_vascular_plant_records_consolidated_2024-11-assigned.csv",
+    obs_file = "tabular_data/AHSBR_Tracheophyta_ultimate-catalogue_2026-06-16-selected-orig.csv",
     shp_index_file = "tabular_data/Howe Shapefile Index.csv"
   )
 )
@@ -16,7 +16,7 @@ datasets <- list(
 obsFile <- datasets[[runDataset]]$obs_file;
 shapeIndex = timedFread(datasets[[runDataset]]$shp_index_file);
 
-prefix <- sub("(.*)-assigned.*", "\\1", obsFile)
+prefix <- sub("(.*)-orig.*", "\\1", obsFile)
 
 fix_case <- function(s) {
   if (str_detect(s, "^[A-Z\\W]+$")) {  # Check if the string is all uppercase (including non-alphabetic characters)

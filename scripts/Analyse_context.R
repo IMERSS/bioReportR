@@ -17,7 +17,7 @@ read_GBIF = function (filename) {
 all <- read_GBIF("big_data/gbif-howe-context-tracheophyta-2026-03-27-raw.tsv")
 all_sf <- st_as_sf(all, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
-realContext = read_sf("big_data/GeoRegionV2_Terrestrial_dissolved/");
+realContext = st_transform(read_sf("big_data/EoScapes_StudyRegion/"), 4326);
 
 all_sf_real_context <- st_filter(all_sf, realContext)
 all_real_context <- all_sf_real_context %>%
@@ -28,7 +28,7 @@ all_real_context <- all_sf_real_context %>%
   st_drop_geometry()
 
 # Rough and ready, just resolve data at species level
-all$scientificName <- all$species
+all_real_context$scientificName <- all_real_context$species
 
 all_reduced <- all[!duplicated(all$scientificName), ] %>% filter(!is.na(scientificName))
 

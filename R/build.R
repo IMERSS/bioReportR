@@ -3,15 +3,15 @@
 # Copy files from data/tabular_data to docs/data/tabular
 
 src_dir <- "tabular_data"
-dst_dir <- "docs/data/tabular"
+dst_dir <- "static/data/tabular"
 
 # Create destination directory if it doesn't exist
 dir.create(dst_dir, recursive = TRUE, showWarnings = FALSE)
 
 files <- c(
-  "Howe_Sound_vascular_plant_records_consolidated_2024-11-labels.csv",
-  "Howe_Sound_vascular_plant_records_consolidated_2024-11-prepared-taxa.csv",
-  "Howe_Sound_vascular_plant_records_consolidated_2024-11-regionIndirection.csv"
+  "AHSBR_Tracheophyta_ultimate-catalogue_2026-06-16-selected-labels.csv",
+  "AHSBR_Tracheophyta_ultimate-merged-summary_2026-06-16-prepared-taxa.csv",
+  "AHSBR_Tracheophyta_ultimate-catalogue_2026-06-16-selected-regionIndirection.csv"
 )
 
 for (f in files) {

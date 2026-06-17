@@ -1,10 +1,12 @@
 ---
 title: Community Science Contributions
+shortTitle: Community Science
 weight: 3
 knit: (function(input, ...) { source(here::here("R/knit_render.R"), local = TRUE)$value(input, ...) })
-gridVisible: true
-filtersVisible: true
-obsTableVisible: true
+paneHandlerLayers: ["reknitr.obsMapPaneHandler"]
+visibleGrid: true
+visibleFilters: true
+visibleObsTable: true
 regionField: "!statusAsRegion"
 statusColors:
   confirmed: '#5a96d2'

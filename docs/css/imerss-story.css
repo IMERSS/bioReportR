@@ -70,8 +70,10 @@ main .content h3, main.content h2, main h1 {
     background-color: #ffffff80;
 }
 
+/** Needs to be more specific to beat hextra's abominable theming **/
+
 nav a span {
-    color: #FDF2CE;
+    color: #dff1f4;
     text-transform: uppercase;
     font-weight: 600;
     letter-spacing: 1px;
@@ -118,6 +120,7 @@ nav a {
 }
 
 .imerss-subnav {
+    color: #dff1f4;
     position: relative;
     font-size: 16px;
 }
@@ -129,10 +132,17 @@ nav a {
     background-color: #184E62b0;
 }
 
-
+/* Fix up wonky height of links inside subnav e.g. GitHub icon */
+.imerss-subnav a {
+    display: flex;
+}
 
 footer {
     color: black;
+}
+
+html[class~=dark] footer {
+    color: #a8bec8;
 }
 
 .imerss-copyright {
@@ -156,14 +166,15 @@ h2 {
 .mxcw-section-nav {
     display: flex;
     align-items: center;
-    padding-bottom: 1rem;
+    padding-bottom: 5px;
 
-    position: absolute;
     top: 5px;
-    width: calc(100% + 50px);
-    margin-left: -3rem;
-    margin-right: -3rem;
+    width: 100%;
+    margin: 0 10px;
     z-index: 200;
+
+    overflow-x: scroll;
+    overflow-y: clip;
 }
 
 .mxcw-section-nav .mxcw-hidden {
@@ -209,6 +220,11 @@ h2 {
 
 .mxcw-content a {
     text-decoration: underline;
+}
+
+.mxcw-data a {
+    text-decoration: underline;
+    color: blue;
 }
 
 .section.level2 {
@@ -283,7 +299,7 @@ h2 {
     flex-direction: column;
     height: 40%;
     font-size: 18px;
-    padding: 0.5rem 0.5rem 1rem 0.5rem;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
     align-items: center;
     transition-property: height;
     transition-duration: 800ms;
@@ -292,51 +308,351 @@ h2 {
     color: #eefaff;
 }
 
-.section-button {
-    stroke: #362F24;
-    fill: #FFFDFD;
+
+
+.chevron-nav {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+.chevron-tab {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem 24px 0.2rem 18px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    background: #4b778f;
+    border: none;
+    outline: none;
+    margin-right: -18px;
+    z-index: 1;
+    transition: background 0.15s, color 0.15s;
+    clip-path: polygon(
+            0 0,
+            calc(100% - 18px) 0,
+            100% 50%,
+            calc(100% - 18px) 100%,
+            0 100%,
+            18px 50%
+    );
+}
+
+.chevron-tab:first-child {
+    clip-path: polygon(
+            0 0,
+            calc(100% - 18px) 0,
+            100% 50%,
+            calc(100% - 18px) 100%,
+            0 100%
+    );
+    padding-left: 1.1rem;
+    z-index: 5;
+}
+
+
+
+.chevron-tab:last-child {
+    margin-right: 0;
+    clip-path: polygon(
+            0 0,
+            100% 0,
+            100% 100%,
+            0 100%,
+            18px 50%
+    );
+    z-index: 1;
+}
+
+.chevron-tab:hover {
+    background: #6f96a8;
+    z-index: 10;
+}
+
+.chevron-tab.active {
+    background: #9aaeb8;
+    z-index: 10;
+}
+
+.chevron-tab.active:hover {
+    background: #a8bec8;
+}
+
+
+.mxcw-solow-legend .imerss-legend-title {
+    font-size: smaller;
+    margin-bottom: 4px;
+}
+
+.mxcw-taxa-filters-holder {
+    background-color: #eefaff;
+    padding: 2px 6px;
+}
+
+.mxcw-taxa-filters-holder .imerss-filter-body {
+    flex-direction: column;
+}
+
+.mxcw-taxa-filters-holder .imerss-filters {
+    display: flex;
+    padding-top: 6px;
+    overflow-x: scroll;
+}
+
+.mxcw-taxa-filters-holder .imerss-filter {
+    display: flex;
+    border-right: 1px #ddd solid;
+    border-bottom: none;
+    padding: 0 8px;
+}
+
+.mxcw-solow-taxa {
+    height: 100%;
+    background-color: #184E62;
+    display: flex;
+    flex-direction: column;
+}
+
+/** Stop the data table having rounded corners since we want to bolt filters onto the top of it **/
+.mxcw-solow-taxa .hortis-dataTable-wrap {
+    border: none;
+    border-radius: 0;
+}
+
+.mxcw-solow-radius {
+    display: flex;
+    height: 100%;
+}
+
+.mxcw-solow-widgets-holder {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+.mxcw-solow-taxon-holder {
+    width: 60%;
+}
+
+.mxcw-solow-radius-holder {
+    display: flex;
+    width: 40%;
+    height: 100%;
+}
+
+.mxcw-solow-taxon-pane {
+    /** Shared with hortis-dataTable-wrap */
+    border: 1px solid var(--data-table-border);
+    border-radius: var(--data-table-radius);
+    background: var(--data-table-surface);
+    padding: 4px 1rem;
+    display: flex;
+    height: 100%;
+    margin-right: 1rem;
+}
+
+.mxcw-solow-taxon-pane .mxcw-taxon-image {
+    width: 40%;
+}
+
+.mxcw-solow-taxon-pane .mxcw-taxon-info {
+    width: 60%;
+}
+
+.mxcw-solow-taxon-pane .taxonDisplay-image-holder {
+    height: 100%;
+    font-size: smaller;
+    padding: 8px 16px 8px 0;
+}
+
+.mxcw-solow-taxon-pane .imerss-photo {
+    max-height: 100%;
+    border-radius: 8px;
+}
+
+
+/* ============================================================
+   solowRadius.css
+   All rules are scoped to .mxcw-solow-radius so nothing leaks
+   outside the component container.
+   ============================================================ */
+
+.mxcw-solow-radius {
+    display: flex;
+    flex-direction: column;
+    background: #0d3040;
+    border: 2px solid #4a9aaa;
+    border-radius: 18px;
+    padding: 20px 30px;
+    width: 460px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* ── Title ─────────────────────────────────────────────────── */
+
+.mxcw-solow-radius .mxcw-solow-radius-title {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+/* ── Slider wrapper ─────────────────────────────────────────── */
+
+.mxcw-solow-radius .mxcw-solow-radius-slider-wrap {
     position: relative;
 }
 
-.imerss-ecological-pane {
-    --section-circle-stroke-width: 0;
+.mxcw-solow-radius .mxcw-solow-radius-track {
+    position: relative;
+    height: 6px;
+    background: #4a9aaa;
+    border-radius: 3px;
+    margin: 18px 0;
 }
 
-.imerss-ecological-pane .section-button {
-    stroke: #F2FCD6;
-    fill: var(--section-circle-fill);
-}
-
-.section-button:hover:not(.disabled) {
-    stroke: rgba(90,82,68,.8);
-    cursor: pointer;
-}
-
-.imerss-ecological-pane .section-button:hover:not(.disabled) {
-    stroke: #AAA;
-    cursor: pointer;
-}
-
-.section-button.disabled {
-    display: none;
-    /* stroke: #ccc; */
-}
-
-.section-button-desc {
-    display: none;
+.mxcw-solow-radius .mxcw-solow-radius-fill {
     position: absolute;
-    z-index: 50;
-    border: solid 1px black;
-    background-color: white;
-    color: black;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: #4a9aaa;
+    border-radius: 3px;
+    pointer-events: none;
 }
 
-.section-right-desc {
-    right: 0;
+/* ── Range input ────────────────────────────────────────────── */
+
+.mxcw-solow-radius .mxcw-solow-radius-input {
+    -webkit-appearance: none;
+    appearance: none;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 6px;
+    background: transparent;
+    margin: 0;
+    cursor: pointer;
+    outline: none;
 }
 
-.section-button:hover:not(.disabled) .section-button-desc {
-    display: block;
+.mxcw-solow-radius .mxcw-solow-radius-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #7a8fa0;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    transition: background 0.15s;
+}
+
+.mxcw-solow-radius .mxcw-solow-radius-input::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #7a8fa0;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    transition: background 0.15s;
+}
+
+.mxcw-solow-radius .mxcw-solow-radius-input:hover::-webkit-slider-thumb {
+    background: #99b0be;
+}
+
+.mxcw-solow-radius .mxcw-solow-radius-input:hover::-moz-range-thumb {
+    background: #99b0be;
+}
+
+/* ── Scale labels (0 … 10,000) ──────────────────────────────── */
+
+.mxcw-solow-radius .mxcw-solow-radius-scale-labels {
+    display: flex;
+    justify-content: space-between;
+    color: #ffffff;
+    font-size: 1.25rem;
+    margin-top: 4px;
+}
+
+/* ── Snap markers row ───────────────────────────────────────── */
+
+.mxcw-solow-radius .mxcw-solow-radius-snap-markers {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 14px; /* Half the 28px slider thumb size */
+    margin-top: 6px;
+}
+
+.mxcw-solow-radius .mxcw-solow-radius-snap-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 0;
+    gap: 4px;
+}
+
+.mxcw-solow-radius .mxcw-solow-radius-snap-tick {
+    width: 2px;
+    height: 8px;
+    background: #4a9aaa;
+    opacity: 0.6;
+    border-radius: 1px;
+}
+
+.mxcw-solow-radius .mxcw-solow-radius-snap-label {
+    color: #7ab8c4;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* ── Current selected value ─────────────────────────────────── */
+
+.mxcw-solow-radius .mxcw-solow-radius-current-value {
+    text-align: center;
+    color: #ffffff;
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* ── Footnote ───────────────────────────────────────────────── */
+
+.mxcw-solow-radius .mxcw-solow-radius-note {
+    color: #a8c8d0;
+    font-style: italic;
+    font-size: medium;;
+    line-height: 1.5;
+    margin-top: 4px;
+}
+
+
+.mxcw-taxon-fields {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 1.5rem;
+    row-gap: 3px;
+    margin: 0;
+}
+
+.mxcw-taxon-name {
+    font-size: larger;
+    padding-bottom: 10px;
+    padding-top: 5px;
+    line-height: normal;
 }
 
 .mxcw-leftPane {
@@ -372,11 +688,15 @@ h2 {
     z-index: 5;
     opacity: 1;
     color: black;
-    margin: 0.5rem 0;
+    margin-bottom: 8px;
+    margin-left: 8px;
     height: 20%;
+    min-height: 200px;
+    display: flex;
 }
 
-.mxcw-hideMap ~ .mxcw-content-holder {
+
+.mxcw-hideMap ~ .mxcw-data {
     height: 100%;
 }
 
@@ -391,7 +711,7 @@ h2 {
 
 .mxcw-content .section {
     /* We've got the scrollbar at the right, eat into it a bit */
-    padding: 8px 0 8px 8px;
+    padding: 8px 0 8px 12px;
 }
 
 .mxcw-content img {

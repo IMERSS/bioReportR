@@ -1,0 +1,15 @@
+---
+title: Extirpation Risk
+shortTitle: Extirpation Risk
+weight: 5
+knit: (function(input, ...) { source(here::here("R/knit_render.R"), local = TRUE)$value(input, ...) })
+---
+
+## Extirpation Risk
+
+[Simon et al., 2025](https://nph.onlinelibrary.wiley.com/doi/full/10.1002/ppp3.70130)
+
+|   |   |
+|---|---|
+|PP = Solow probability of presence| Baseline year = 1859|
+|EP = Solow probability of extirpation (1 - PP) | Analysis year = 2025|

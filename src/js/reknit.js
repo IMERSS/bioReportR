@@ -257,6 +257,17 @@ reknitr.transferNodeContent = function (container, template, selector) {
     containerNode.remove();
 };
 
+/**
+ * Parses map data for a given pane key.
+ * Attempts to load a JSON file named `${key}-mapData.json` from the `viz_data` directory.
+ * If the file exists, extracts the top-level `view` and `regionField` properties,
+ * and collects the IDs of layers marked as selectable.
+ * Returns an object containing the top-level data and an array of selectable layer IDs.
+ * If the file does not exist, returns empty objects.
+ *
+ * @param {String} key - The pane key used to locate the map data file.
+ * @return {{topLevel: Object, selectable: String[]}} An object with `topLevel` map data and an array of selectable layer IDs.
+ */
 reknitr.parseMapData = function (key) {
     const plotDataFile = "%self/viz_data/" + key + "-mapData.json";
     const resolved = fluid.module.resolvePath(plotDataFile);
@@ -280,6 +291,24 @@ reknitr.unflattenOptions = function (records) {
     }));
 };
 
+/**
+ * @typedef {Object} StoryFileEntry
+ * @property {String} htmlfile - The path to the HTML file.
+ * @property {Object} frontMatter - The parsed YAML front matter from the corresponding Rmd file.
+ * @property {String} paneKey - The pane key, typically the file name without extension.
+ */
+
+/**
+ * Sorts an array of HTML file paths by the `weight` property in their corresponding YAML front matter.
+ * For each HTML file, this function:
+ *   - Determines the corresponding `.Rmd` file in the same directory.
+ *   - Reads and parses the YAML front matter from the `.Rmd` file.
+ *   - Constructs a `StoryFileEntry` object containing the HTML file path, parsed front matter, and pane key.
+ * Returns an array of `StoryFileEntry` objects sorted by the `weight` property (ascending).
+ *
+ * @param {String[]} resolvedFiles - Array of resolved HTML file paths.
+ * @return {StoryFileEntry[]} Sorted array of file entries with front matter and pane key.
+ */
 reknitr.sortedMatterForFiles = function (resolvedFiles) {
     const fileEntries = resolvedFiles.map(htmlfile => {
         const { dir, name } = path.parse(htmlfile);
@@ -309,6 +338,11 @@ reknitr.outputTypes = {
     }
 };
 
+reknitr.mapFrontMatter = function (frontMatter) {
+    const layerNames = frontMatter.paneHandlerLayers || [];
+    return {...fluid.censorKeys(frontMatter, ["knit", "paneHandlerLayers"]), ...{gradeNames: layerNames}};
+};
+
 reknitr.reknitFiles = async function (rec) {
     const {infiles, outfile, template, options} = rec;
 
@@ -320,6 +354,7 @@ reknitr.reknitFiles = async function (rec) {
     const parseResults = reknitr.makeMapboxParseResults();
     const resolvedFiles = glob.sync(fluid.module.resolvePath(infiles));
 
+    /** @type {StoryFileEntry[]} */
     const fileEntries = reknitr.sortedMatterForFiles(resolvedFiles);
 
     const paneInfo = fileEntries.map(({htmlfile, frontMatter, paneKey}) => {
@@ -333,7 +368,7 @@ reknitr.reknitFiles = async function (rec) {
         reknitr.parseMapboxWidgets(parseResults, container);
 
         target.appendChild(container);
-        return {...fluid.censorKeys(frontMatter, ["knit"]), paneKey};
+        return {...reknitr.mapFrontMatter(frontMatter), paneKey};
     });
 
     const paneInfoHash = Object.fromEntries(
@@ -412,24 +447,6 @@ const copyDep = function (source, target, replaceSource, replaceTarget) {
         console.log(`Copied file: ${targetPath}`);
     }
 };
-
-/*
-// Currently unused - otherwise we can't load unknitted files
-const clearNonMedia = function () {
-    const directory = "docs";
-    const files = fs.readdirSync(directory, { withFileTypes: true });
-
-    files.forEach((file) => {
-        const filePath = path.join(directory, file.name);
-
-        if (file.isDirectory()) {
-            if (file.name !== "media") {
-                fs.rmSync(filePath, { recursive: true });
-            }
-        }
-    });
-};
-*/
 
 const reknit = async function () {
     const config = fluid.loadJSON5File("%self/config.json5");

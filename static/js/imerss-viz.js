@@ -12,10 +12,11 @@ var {} = preactSignalsCore;
 fluid.defaults("hortis.standardVizLoader", {
     gradeNames: "hortis.vizLoaderWithMap",
     selectors: {
-        recordReporter: ".imerss-record-reporter",
-        filterControls: ".imerss-filter-controls",
-        filters: ".imerss-main-filters",
-        checklist: ".imerss-main-checklist"
+        recordReporter: ".imerss-filter-panel .imerss-record-reporter",
+        // Refine this so we could have another .imerss-filter-controls elsewhere
+        filterControls: ".imerss-filter-panel .imerss-filter-controls",
+        filters: ".imerss-filter-panel .imerss-main-filters",
+        checklist: ".imerss-filter-panel .imerss-main-checklist"
     },
     gridResolution: 100,
     members: {
@@ -79,7 +80,7 @@ fluid.defaults("hortis.standardVizLoader", {
             type: "hortis.checklist.withHolder",
             container: "{that}.dom.checklist",
             options: {
-                gradeNames: ["hortis.checklist.withDownload", "hortis.checklist.withSearch"],
+                gradeNames: ["hortis.checklist.withDownload", "hortis.checklist.withSearch", "hortis.checklist.withSingleSearch"],
                 rootId: 48460, // Life
                 filterRanks: ["epifamily", "family", "tribe", "genus", "subgenus", "species"],
                 disclosableRanks: [],

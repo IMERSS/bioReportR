@@ -31,3 +31,8 @@
 .imerss-checklist-holder {
     padding-top: 0;
 }
+
+/* Specifically override definition in hextra main theme */
+body:is(html[class~=dark] *) {
+    background-color: #002a35;
+}

@@ -776,6 +776,7 @@ a.ui-button:active,
     width: 10em;
     margin-left: auto;
     margin-right: 10px;
+    margin-top: 8px;
     background: #555e;
     pointer-events: all;
     display: flex;
@@ -1130,6 +1131,10 @@ a.ui-button:active,
 
 .imerss-filter {
     padding: 2px 0 2px;
+    margin-top: -1px;
+    margin-bottom: 1px;
+    display: flex;
+    flex-direction: column;
     border-bottom: 1px solid #dbe3e7;
 }
 
@@ -1316,6 +1321,13 @@ a.ui-button:active,
     padding: 3px 5px 3px 2.5rem;
     width: calc(100% - 20px)
 }
+
+/*
+.imerss-search-checklist svg {
+    position: absolute;
+    margin-left: 2rem;
+}
+ */
 
 .imerss-search-checklist svg {
     left: 0;

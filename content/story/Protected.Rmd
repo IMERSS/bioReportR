@@ -1,8 +1,12 @@
 ---
 title: Vascular plant diversity within Howe Sound's protected areas
+shortTitle: Protected Areas
 weight: 5
 knit: (function(input, ...) { source(here::here("R/knit_render.R"), local = TRUE)$value(input, ...) })
+paneHandlerLayers: ["reknitr.obsMapPaneHandler"]
 regionField: Protected
+visibleObsTable: false
+visibleGrid: false
 ---
 
 ## Vascular plant diversity within Howe Sound's protected areas

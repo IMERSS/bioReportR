@@ -10,8 +10,9 @@
     color: black;
 }
 
-.mxcw-data {
+.imerss-main {
     --data-table-surface: #eefaff;
+    --data-table-border: #ddd;
 }
 
 .mxcw-data-widget-text {
@@ -22,6 +23,7 @@
     flex-direction: column;
     height: 100%;
     display: flex;
+    overflow: auto; /* Without this, massive horizontal overflow on parent */
 }
 
 .mxcw-obs-table-controls {
@@ -37,6 +39,7 @@
 
 .mxcw-obs-table {
     height: 100%;
+    min-height: 0;
 }
 
 .imerss-pane-info {
@@ -49,7 +52,7 @@
 .imerss-panel-label {
     font-weight: 700;
     font-size: 1.5rem;
-    padding: 0.2rem 1rem 0.2rem 1.4rem;
+    padding: 0.2rem 1rem 0.2rem 0.3rem;
 }
 
 .imerss-download {
@@ -155,6 +158,10 @@
     transition-duration: 400ms;
 }
 
+.mxcw-region-legend .imerss-legend-preview {
+    margin: 2px;
+}
+
 .mxcw-hidden.mxcw-legend {
     opacity: 0;
     visibility: hidden;
@@ -166,9 +173,7 @@
     width: 1.2rem;
     height: 1.2rem;
     outline: 1px solid #353030;
-    margin: 2px;
-    position: relative;
-    top: 3px;
+    margin: 1px;
     cursor: pointer;
 }
 
@@ -204,6 +209,11 @@
     width: 600px;
 }
 
+/** Weird 1-pixel fight over height - see why it seems we want -2px in 3rd position in core */
+.imerss-checklist-decoration {
+    margin: -2px -0.3em -3px -0.8em;
+}
+
 .imerss-map-and-taxa > * {
     flex-grow: 1;
 }
@@ -230,7 +240,6 @@
         max-width: 300px;
     }
 }
-
 
 /* Reach deep into the "general-module-panel" inside the iNat components and adjust its height */
 #inat-components > div > div:last-child {

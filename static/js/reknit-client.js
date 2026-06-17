@@ -2,10 +2,9 @@
 
 /* global Plotly */
 
-// noinspection ES6ConvertVarToLetConst // otherwise this is a duplicate on minifying
+// noinspection ES6ConvertVarToLetConst
 var reknitr = fluid.registerNamespace("reknitr");
-
-// noinspection ES6ConvertVarToLetConst // otherwise this is a duplicate on minifying
+// noinspection ES6ConvertVarToLetConst
 var hortis = fluid.registerNamespace("hortis");
 
 /**
@@ -271,6 +270,10 @@ reknitr.mapSectionHolders = function (storyPage) {
     return togo;
 };
 
+reknitr.mapPaneHandlers = function (storyPage) {
+    return fluid.queryIoCSelector(storyPage, "reknitr.paneHandler", true);
+};
+
 /**
  * Toggles a CSS class on a collection of nodes, activating it only for the node at the selected index.
  * @param {Array<HTMLElement>} nodes - The array of DOM nodes to update.
@@ -306,18 +309,15 @@ reknitr.sectionForPaneHandler = function (handler, storyPage) {
 };
 
 reknitr.paneHandlerForRegion = function (storyPage, region) {
-    const paneHandlers = fluid.queryIoCSelector(storyPage, "reknitr.paneHandler", true);
-    return paneHandlers.find(handler => fluid.getForComponent(handler, "options.selectRegion") === region);
+    return storyPage.paneHandlers.find(handler => fluid.getForComponent(handler, "options.selectRegion") === region);
 };
 
 reknitr.paneHandlerForName = function (storyPage, paneName) {
-    const paneHandlers = fluid.queryIoCSelector(storyPage, "reknitr.paneHandler", true);
-    return paneHandlers.find(handler => fluid.getForComponent(handler, "options.paneKey") === paneName);
+    return storyPage.paneHandlers.find(handler => fluid.getForComponent(handler, "options.paneKey") === paneName);
 };
 
 reknitr.paneHandlerForIndex = function (storyPage, paneIndex) {
-    const paneHandlers = fluid.queryIoCSelector(storyPage, "reknitr.paneHandler", true);
-    return paneHandlers.find(handler => fluid.getForComponent(handler, "options.paneIndex") === paneIndex);
+    return storyPage.paneHandlers.find(handler => fluid.getForComponent(handler, "options.paneIndex") === paneIndex);
 };
 
 reknitr.widgetHandlerForName = function (paneHandler, widgetId) {
@@ -330,8 +330,7 @@ reknitr.allocateDataPanes = function (dataPanesHolder, storyPage) {
     const staticWidgets = [...document.querySelectorAll(".mxcw-data-pane-widget")];
     staticWidgets.forEach(widget => dataPanesHolder.appendChild(widget));
 
-    const paneHandlers = fluid.queryIoCSelector(storyPage, "reknitr.paneHandler", true);
-    return paneHandlers.map((paneHandler) => {
+    return storyPage.paneHandlers.map((paneHandler) => {
         const dataPane = document.createElement("div");
         dataPane.classList.add("mxcw-dataPane");
         dataPane.classList.add("mxcw-dataPane-" + paneHandler.options.paneKey);
@@ -529,6 +528,7 @@ reknitr.indexRegionRows = function (regionRows) {
 reknitr.legendKey.drawLegend = function (map, regionRowsSignal, isVisibleSignal) {
     const container = document.createElement("div");
     container.classList.add("mxcw-legend");
+    container.classList.add("mxcw-region-legend");
     container.classList.add("maplibregl-ctrl"); // to ensure it receives pointer events
 
     const f = regionKey => {
@@ -612,6 +612,42 @@ fluid.defaults("hortis.libreMap.withMapboxData", {
     }
 });
 
+reknitr.sectionNavMarkup = `
+<nav class="chevron-nav" role="tablist" aria-label="Section navigation">
+  <button class="chevron-tab" role="tab" aria-selected="false">Overview</button>
+  <button class="chevron-tab" role="tab" aria-selected="false">History</button>
+  <button class="chevron-tab active" role="tab" aria-selected="true">Explore Records</button>
+  <button class="chevron-tab" role="tab" aria-selected="false">Recent Activity</button>
+  <button class="chevron-tab" role="tab" aria-selected="false">Protected Areas</button>
+</nav>
+`;
+
+reknitr.renderSectionNav = function (storyPage) {
+    const tabs = storyPage.paneHandlers.map(paneHandler => `<button class="chevron-tab" role="tab" aria-selected="false">${paneHandler.options.shortTitle}</button>`).join("\n");
+    const markup = `<nav class="chevron-nav" role="tablist" aria-label="Section navigation">${tabs}</nav>`;
+    const sectionNav = storyPage.locate("sectionNav")[0];
+    sectionNav.innerHTML = markup;
+};
+
+reknitr.updateSectionNav = function (that, activeSection) {
+    const sectionNodes = [...that.locate("sectionNav")[0].querySelectorAll("button")];
+    sectionNodes.forEach((sectionNode, index) => {
+        hortis.toggleClass(sectionNode, "active", index === activeSection);
+        sectionNode.setAttribute("aria-selected", index === activeSection ? "true" : "false");
+    });
+};
+
+
+reknitr.listenSectionNav = function (that) {
+    const sectionNodes = [...that.locate("sectionNav")[0].querySelectorAll("button")];
+    sectionNodes.forEach((sectionNode, index) => {
+        sectionNode.addEventListener("click", () => {
+            that.applier.change("activeSection", index);
+        });
+    });
+};
+
+
 fluid.defaults("reknitr.storyPage", {
     gradeNames: ["fluid.viewComponent", "fluid.resourceLoader"],
     container: "body",
@@ -633,12 +669,7 @@ fluid.defaults("reknitr.storyPage", {
         mapHolder: ".mxcw-map-holder",
         contentHolder: ".mxcw-content-holder",
         content: ".mxcw-content",
-        sectionLeft: ".section-left",
-        sectionLeftDesc: ".section-left-desc",
-        sectionLeftText: ".section-left-text",
-        sectionRight: ".section-right",
-        sectionRightDesc: ".section-right-desc",
-        sectionRightText: ".section-right-text"
+        sectionNav: ".mxcw-section-nav"
     },
     components: {
         map: {
@@ -650,32 +681,39 @@ fluid.defaults("reknitr.storyPage", {
         },
         hashManager: {
             type: "reknitr.hashManager"
+        },
+        resizeBar: {
+            type: "hortis.resizeBar",
+            options: {
+                before: "{storyPage}.dom.map.0",
+                axis: "vertical"
+            }
         }
     },
-    paneHandlers: "@expand:reknitr.resolvePaneHandlers()",
+    paneHandlerOptions: "@expand:reknitr.resolvePaneHandlers()",
     dynamicComponents: {
         paneHandlers: {
-            sources: "{that}.options.paneHandlers",
+            sources: "{that}.options.paneHandlerOptions",
             type: "{source}.type",
             options: "{source}.options"
         }
     },
     members: {
+        paneHandlers: "@expand:reknitr.mapPaneHandlers({that})",
         sectionHolders: "@expand:reknitr.mapSectionHolders({that})",
         dataPanes: "@expand:reknitr.allocateDataPanes({that}.dom.dataPanesHolder.0, {that})",
         paneKeyToIndex: "@expand:reknitr.sectionHoldersToIndex({that}.sectionHolders)",
-        navRangeHolder: "@expand:reknitr.storyPage.navRangeHolder({that})",
         // state
         activePane: "@expand:signal()",
         activePaneHandler: "@expand:fluid.computed(reknitr.paneHandlerForIndex, {that}, {that}.activePane)",
         // "model listeners"
+
         updateActiveMapPane: "@expand:fluid.effect(reknitr.updateActiveMapPane, {that}, {that}.map, {that}.activePane, {that}.map.mapLoaded)",
         updateActiveDataPane: "@expand:fluid.effect(reknitr.updateActiveDataPane, {that}, {that}.activePane)",
         updateGridVisible: "@expand:fluid.effect(reknitr.updateGridVisible, {that}.map, {that}.activePaneHandler)",
-        updateFiltersVisible: "@expand:fluid.effect(reknitr.updateFiltersVisible, {that}, {that}.activePaneHandler)"
-    },
-    invokers: {
-        navSection: "reknitr.navSection({that}.navRangeHolder, {arguments}.0, {arguments}.1)"
+        updatePaneVisibility: "@expand:fluid.effect(reknitr.updatePaneVisibility, {that}, {that}.activePaneHandler)",
+        updateFiltersVisible: "@expand:fluid.effect(reknitr.updateFiltersVisible, {that}, {that}.activePaneHandler)",
+        renderSectionNav: "@expand:reknitr.renderSectionNav({that})"
     },
     model: {
         // Currently this is at the head of updates - > activePane in model and then activePane signal
@@ -731,8 +769,7 @@ fluid.defaults("reknitr.storyPage", {
         }
     },
     listeners: {
-        "onCreate.listenSectionButtons": "reknitr.listenSectionButtons({that})",
-        // This will initialise subPaneIndices quite late
+        "onCreate.listenSectionNav": "reknitr.listenSectionNav({that})",
         "onCreate.findPlotlyWidgets": "reknitr.findPlotlyWidgets({that}, {that}.sectionHolders)"
     }
 });
@@ -773,31 +810,6 @@ reknitr.listenPaneHash = function (storyPage, paneName) {
 reknitr.layerOpacityProperty = function (layer) {
     return layer.type === "line" ? "line-opacity" :
         layer.type === "fill" ? "fill-opacity" : null;
-};
-
-reknitr.updateGridVisible = function (map, paneHandler) {
-    map.gridVisible.value = !!paneHandler.options.gridVisible;
-};
-
-reknitr.updateFiltersVisible = function (that, paneHandler) {
-    const filtersVisible = paneHandler.options.filtersVisible;
-    const filterNodes = document.querySelector(".imerss-filters");
-    hortis.toggleClass(filterNodes, "fl-hidden", !filtersVisible);
-    // Note that there was a terrible bug here with flat = true - we would end up iterating over
-    // ALL the filters since filterRoot is injected inside filters and hence we hit the choroplethFilter also.
-    // Hard to see what to do here - should make a qIS which doesn't follow "portals"?
-    // And this kind of thing would always be in literal code, so how would we expect to trap it?
-    const filters = fluid.queryIoCSelector(that.vizLoader.filters, "hortis.filter", true);
-    filters.map(filter => {
-        if (!filter.options.alwaysActive) {
-            filter.isActive.value = filtersVisible;
-        }
-    });
-
-    const obsTableVisible = paneHandler.options.obsTableVisible;
-    const obsTable = document.querySelector(".mxcw-obs-table-holder");
-    hortis.toggleClass(obsTable, "fl-hidden", !obsTableVisible);
-
 };
 
 reknitr.updateActiveDataPane = function (that, activePane) {
@@ -864,71 +876,74 @@ reknitr.updateActiveMapPane = function (that, map, activePane) {
     });
 };
 
+fluid.defaults("reknitr.obsMapPaneHandler", {
+    gradeNames: "reknitr.paneHandler",
+    visibleMap: true,
+    visibleGrid: true,
+    visibleObsFilters: true,
+    visibleObsTable: true,
+    visibleVizControls: true
+});
+
+fluid.defaults("reknitr.statusPaneHandler", {
+    gradeNames: "reknitr.obsMapPaneHandler"
+});
+
+fluid.defaults("reknitr.solowPaneHandler", {
+    gradeNames: "reknitr.paneHandler",
+    visibleMap: true,
+    visibleVizControls: true,
+    visibleSolow: true
+});
+
+reknitr.visiblePropsToSelectors = {
+    visibleVizControls: ".imerss-container",
+    visibleSolow: ".mxcw-solow",
+    visibleObsFilters: ".imerss-filter-panel"
+};
+
+reknitr.updatePaneVisibility = function (/*that, paneHandler*/) {
+    // TODO: Generalise stuff from updateMapVisible via table above
+};
+
+reknitr.updateGridVisible = function (map, paneHandler) {
+    map.gridVisible.value = !!paneHandler.options.visibleGrid;
+};
+
+reknitr.updateFiltersVisible = function (that, paneHandler) {
+    const visibleFilters = paneHandler.options.visibleFilters;
+    const filterNodes = document.querySelector(".imerss-filters");
+    hortis.toggleClass(filterNodes, "fl-hidden", !visibleFilters);
+    // Note that there was a terrible bug here with flat = true - we would end up iterating over
+    // ALL the filters since filterRoot is injected inside filters and hence we hit the choroplethFilter also.
+    // Hard to see what to do here - should make a qIS which doesn't follow "portals"?
+    // And this kind of thing would always be in literal code, so how would we expect to trap it?
+    const filters = fluid.queryIoCSelector(that.vizLoader.filters, "hortis.obsFilter", true);
+    filters.map(filter => {
+        if (!filter.options.alwaysActive) {
+            filter.isActive.value = visibleFilters;
+        }
+    });
+
+    const obsTableVisible = paneHandler.options.visibleObsTable;
+    const obsTable = document.querySelector(".mxcw-obs-table-holder");
+    hortis.toggleClass(obsTable, "fl-hidden", !obsTableVisible);
+};
+
 reknitr.updateMapVisible = function (that, activePane) {
     const paneHandler = reknitr.paneHandlerForIndex(that, activePane);
     if (!paneHandler) {
         fluid.fail("No pane handler found for section with index ", activePane);
     }
-    const isVisible = !fluid.componentHasGrade(paneHandler, "reknitr.mapHidingPaneHandler");
-    hortis.toggleClass(that.dom.locate("mapHolder")[0], "mxcw-hideMap", isVisible, true);
-    hortis.toggleClass(document.querySelector(".imerss-container"), "fl-hidden", isVisible, true);
+    hortis.toggleClass(that.dom.locate("mapHolder")[0], "mxcw-hideMap", paneHandler.options.visibleMap, true);
+    hortis.toggleClass(document.querySelector(".imerss-container"), "fl-hidden", paneHandler.options.visibleVizControls, true);
+    hortis.toggleClass(document.querySelector(".mxcw-solow-taxa"), "fl-hidden", paneHandler.options.visibleSolow, true);
+    hortis.toggleClass(document.querySelector(".mxcw-solow-widgets-holder"), "fl-hidden", paneHandler.options.visibleSolow, true);
+
+    that.vizLoader.solowMapLayer.layerVisible.value = !!paneHandler.options.visibleSolow;
+
+    hortis.toggleClass(document.querySelector(".imerss-filter-panel"), "fl-hidden", paneHandler.options.visibleObsFilters, true);
     that.map.maxObsCountOverride.value = paneHandler.options.maxObsCountOverride;
-};
-
-// Compute the destination section for a navigation operation, given a "Range" record, the current active section and the desired offset
-reknitr.navSection = function (navRangeHolder, activeSection, offset) {
-    const navRangeIndex = navRangeHolder.indexToRange[activeSection];
-    const navRange = navRangeHolder.navRanges[navRangeIndex];
-    const navIndex = navRange.indexOf(activeSection);
-    return navRange[navIndex + offset];
-};
-
-reknitr.storyPage.navRangeHolder = function (storyPage) {
-    // Just support a single "navRange" - this was a complexity generated for Xetthecum
-    const navRanges = [Object.values(storyPage.paneKeyToIndex)];
-    const indexToRange = fluid.generate(navRanges[0].length, 0);
-
-    return {navRanges, indexToRange};
-};
-
-
-reknitr.listenSectionButtons = function (that) {
-    const sectionLeft = that.locate("sectionLeft")[0];
-    sectionLeft.addEventListener("click", () => {
-        const activeSection = that.model.activeSection;
-        const navLeft = that.navSection(activeSection, -1);
-        if (navLeft !== undefined) {
-            that.applier.change("activeSection", navLeft);
-        }
-    });
-    const sectionRight = that.locate("sectionRight")[0];
-    sectionRight.addEventListener("click", () => {
-        const activeSection = that.model.activeSection;
-        const navRight = that.navSection(activeSection, 1);
-        if (navRight !== undefined) {
-            that.applier.change("activeSection", navRight);
-        }
-    });
-};
-
-reknitr.updateSectionNav = function (that, activeSection) {
-    const l = (selector) => that.locate(selector)[0];
-    const navLeft = that.navSection(activeSection, -1);
-    const first = navLeft === undefined;
-    const navRight = that.navSection(activeSection, 1);
-    const last = navRight === undefined;
-
-    hortis.toggleClass(l("sectionLeft"), "disabled", first);
-    l("sectionLeftText").innerText = first ? "" : that.sectionHolders[navLeft].headingText;
-    hortis.toggleClass(l("sectionLeftDesc"), "mxcw-hidden", first);
-    const paneHandlerLeft = reknitr.paneHandlerForIndex(that, navLeft);
-    l("sectionLeft").style.setProperty("--section-circle-fill", paneHandlerLeft?.options.sectionButtonFill || "#eee");
-
-    hortis.toggleClass(l("sectionRight"), "disabled", last);
-    l("sectionRightText").innerText = last ? "" : that.sectionHolders[navRight].headingText;
-    hortis.toggleClass(l("sectionRightDesc"), "mxcw-hidden", last);
-    const paneHandlerRight = reknitr.paneHandlerForIndex(that, navRight);
-    l("sectionRight").style.setProperty("--section-circle-fill", paneHandlerRight?.options.sectionButtonFill || "#eee");
 };
 
 // Base definitions
@@ -988,14 +1003,6 @@ reknitr.stopMedia = function (container, isVisible) {
 reknitr.paneHandler.addPaneClass = function (that, parentContainer) {
     parentContainer[0].classList.add("mxcw-widgetPane-" + that.options.paneKey);
 };
-
-fluid.defaults("reknitr.librePaneHandler", {
-    gradeNames: "reknitr.paneHandler"
-});
-
-// Tag interpreted by reknitr.updateMapVisible
-fluid.defaults("reknitr.mapHidingPaneHandler", {
-});
 
 fluid.defaults("reknitr.templatePaneHandler", {
     gradeNames: ["reknitr.paneHandler", "fluid.templateRenderingView"],

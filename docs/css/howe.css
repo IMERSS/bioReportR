@@ -16,3 +16,29 @@
 .imerss-region-filter {
     display: none;
 }
+
+/* Hide data pane which is still there in content for Saanich, check back in Howe whether we want this */
+.mxcw-content-holder .mxcw-data {
+    min-height: 0;
+    height: 0;
+}
+
+.imerss-filter-controls {
+    margin-top: 2px;
+    margin-bottom: -2px;
+}
+
+.imerss-filter {
+    padding: 1px 0 2px;
+
+}
+
+.mxcw-leftPane > .resize-bar {
+    margin-top: 2px;
+}
+
+.resize-bar {
+    --bar-color: rgba(192, 192, 192, 0.5);
+    --bar-color-hover: rgba(192, 192, 192, 0.6);
+    --bar-color-active: rgba(192, 192, 192, 0.8);
+}

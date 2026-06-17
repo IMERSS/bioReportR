@@ -1,5 +1,6 @@
 ---
 title: Top contributions to our knowledge of the regional plant diversity
+shortTitle: Top contributions
 weight: 4
 knit: (function(input, ...) { source(here::here("R/knit_render.R"), local = TRUE)$value(input, ...) })
 ---

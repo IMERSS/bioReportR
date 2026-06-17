@@ -1,10 +1,13 @@
 ---
 title: Howe Sound's vascular plant diversity
+shortTitle: Regional Diversity
 weight: 1
 knit: (function(input, ...) { source(here::here("R/knit_render.R"), local = TRUE)$value(input, ...) })
+paneHandlerLayers: ["reknitr.obsMapPaneHandler"]
 paneKey: Vascular_BEC
 regionField: BEC
-obsTableVisible: true
+visibleGrid: false
+visibleObsTable: true
 ---
 
 ## Howe Sound's vascular plant diversity

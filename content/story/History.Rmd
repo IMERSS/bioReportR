@@ -1,8 +1,11 @@
 ---
 title: History of collection activities within the region
+shortTitle: History
 weight: 2
 knit: (function(input, ...) { source(here::here("R/knit_render.R"), local = TRUE)$value(input, ...) })
-gridVisible: true
+paneHandlerLayers: ["reknitr.obsMapPaneHandler"]
+visibleGrid: true
+visibleObsTable: false
 ---
 
 ## History of collection activities within the region

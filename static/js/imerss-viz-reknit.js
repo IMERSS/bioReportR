@@ -44,8 +44,9 @@ fluid.defaults("reknitr.storyPage.withVizLoader", {
                             }
                         }
                     },
+                    // Override definition in hortis.standardVizLoader which is a base grade of hortis.blitzVizLoader
                     filters: {
-                        type: "reknitr.storyFilters",
+                        type: "reknitr.storyObsFilters",
                         options: {
                             components: {
                                 regionFilter: {
@@ -85,10 +86,74 @@ fluid.defaults("reknitr.storyPage.withVizLoader", {
             args: ["{map}", "{change}.value"]
         }
     },
+
     members: {
         relayStatusToFilter: "@expand:fluid.effect(reknitr.relayStatusToFilter, {map}.selectedStatus, {storyPage}.vizLoader.filters.statusFilter)",
+        // Abominable failure of bidirectionality
+        relayFilterToStatus: "@expand:fluid.effect(reknitr.relayFilterToStatus, {storyPage}.vizLoader.filters.statusFilter.filterState, {map})",
         relayRegionsToLegend: "@expand:fluid.effect(reknitr.relayRegionsToLegend, {map}, {vizLoader}.regionIndirection.rows, {storyPage}.activePaneHandler, {map}.mapLoaded)",
         relayRegionToHash: "@expand:fluid.effect(reknitr.relayRegionToHash, {hashManager}, {map}.selectedRegion)"
+    }
+});
+
+reknitr.summaryTaxaRows = function (rows) {
+    return rows.filter(row => row.inSummary);
+};
+
+fluid.defaults("reknitr.vizLoader.withSolow", {
+    members: {
+        filteredTaxa: "{taxaFiltersHolder}.filters.allOutput"
+    },
+    components: {
+        taxaFiltersHolder: {
+            type: "reknitr.howeTaxaFiltersHolder",
+            options: {
+                parentContainer: ".mxcw-solow-taxa"
+            }
+        },
+        taxaTable: {
+            type: "hortis.dataTable",
+            options: {
+                parentContainer: ".mxcw-solow-taxa",
+                sortable: true,
+                rowSelectable: true,
+                columns: "{vizLoader}.options.taxonColumns",
+                members: {
+                    rows: "{vizLoader}.filteredTaxa",
+                    sortColumn: "@expand:signal(direct_solow_ep)",
+                    sortDirection: "@expand:signal(-1)"
+                }
+            }
+        },
+        solowRadius: {
+            type: "reknitr.solowRadius",
+            options: {
+                parentContainer: ".mxcw-solow-radius-holder"
+            }
+        },
+        solowTaxonInfo: {
+            type: "reknitr.solowTaxonInfo",
+            options: {
+                parentContainer: ".mxcw-solow-taxon-holder",
+                members: {
+                    selectedTaxon: "{vizLoader}.taxaTable.selectedRow",
+                    rowById: "{vizLoader}.taxa.rowById",
+                    obsRows: "{vizLoader}.obsRows"
+                }
+            }
+        },
+        solowMapLayer: {
+            type: "reknitr.solowMapLayer",
+            options: {
+                components: {
+                    map: "{vizLoader}.map"
+                },
+                members: {
+                    solowRadius: "{solowRadius}.radius",
+                    taxonObsRows: "{solowTaxonInfo}.taxonObsRows"
+                }
+            }
+        }
     }
 });
 
@@ -107,6 +172,7 @@ reknitr.storyPage.triggerObsDownload = function (that) {
 fluid.defaults("reknitr.statusFilter", {
     gradeNames: ["hortis.statusFilter", "hortis.obsDrivenFilter", "hortis.repeatingRowFilter", "fluid.stringTemplateRenderingView"],
     members: {
+        // selectedStatus
         taxaById: "{taxa}.rowById",
         filterRows: [
             {id: "confirmed", label: "confirmed"},
@@ -147,7 +213,7 @@ reknitr.statusFilter.bindClick = function (that, selectedStatus) {
     });
 };
 
-reknitr.storyFiltersTemplate = `
+reknitr.storyObsFiltersTemplate = `
     <div class="imerss-filters">
         <div class="imerss-filter"></div>
         <div class="imerss-status-filter imerss-filter"></div>
@@ -156,11 +222,11 @@ reknitr.storyFiltersTemplate = `
     </div>
 `;
 
-fluid.defaults("reknitr.storyFilters", {
+fluid.defaults("reknitr.storyObsFilters", {
     gradeNames: ["hortis.obsFilters", "fluid.stringTemplateRenderingView"],
     markup: { // Clearly unsatisfactory, have to move over to preactish rendering before long
-        container: reknitr.storyFiltersTemplate,
-        fallbackContainer: reknitr.storyFiltersTemplate
+        container: reknitr.storyObsFiltersTemplate,
+        fallbackContainer: reknitr.storyObsFiltersTemplate
     },
     members: {
         obsRows: "{vizLoader}.obsRows"
@@ -218,6 +284,16 @@ reknitr.relayStatusToFilter = function (selectedStatus, statusFilter) {
         newFilterState[selectedStatus] = true;
     }
     fluid.each(newFilterState, (value, key) => statusFilter[key].value = value);
+};
+
+
+// Listen for reset status and relay it back onto map
+reknitr.relayFilterToStatus = function (filterState, map) {
+// Counts the number of true flags in filterState using reduce
+    const flagsSet = Object.values(filterState).reduce((count, flag) => count + (flag === true ? 1 : 0), 0);
+    if (flagsSet === 0) {
+        map.selectedStatus.value = null;
+    }
 };
 
 reknitr.relayRegionToHash = function (hashManager, selectedRegion) {
@@ -288,10 +364,6 @@ fluid.defaults("hortis.libreMap.inStoryPage", {
         // Prevent the map zooming to selected obs
         zoomToObsBounds: "@expand:signal()"
     }
-});
-
-fluid.defaults("reknitr.statusPaneHandler", {
-    gradeNames: "reknitr.paneHandler"
 });
 
 reknitr.forwardRegionSelection = function (regionFilter, selectedRegion) {
@@ -456,7 +528,7 @@ fluid.defaults("reknitr.bareRegionsExtra.withLegend", {
     }
 });
 
-
+// Ancient thing, vizColumn no longer exists
 reknitr.addToVizColumn = function (parentContainer, jNode) {
     const target = parentContainer.find(".mxcw-vizColumn");
     target.append(jNode);
