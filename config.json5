@@ -13,10 +13,8 @@
                 slowZoomDuration: 0,
                 gridResolution: 1000,
                 regionFilterFieldNames: ["BEC", "Protected"],
-                selectors: {
-                    /** This one is used for toggling **/
-                    mapHolder: ".mxcw-map"
-                }
+                SolowBaselineYear: 1897,
+                SolowAnalysisYear: 2024
             },
 
             components: {
@@ -184,8 +182,5 @@
     }, {
         source: "%imerss-bioinfo/docs/css/imerss-blitz.css",
         target: "%self/static/css/imerss-blitz.css"
-    }, {
-        source: "%self/outputs",
-        target: "%self/docs/data/tabular"
     }]
 }

@@ -370,13 +370,6 @@ reknitr.clusterObsByRadius = function (obsRows, solowRadius) {
     return Object.values(clusterMap);
 };
 
-// ══════════════════════════════════════════════════════════════════════════════
-// Solow prior-probability computation
-// ══════════════════════════════════════════════════════════════════════════════
-
-reknitr.SOLOW_BASELINE_YEAR = 1859;
-reknitr.SOLOW_ANALYSIS_YEAR = 2025;
-
 /**
  * Extracts the 4-digit year from an eventDate string.
  *
@@ -400,6 +393,12 @@ reknitr.yearToSolowTime = function (year) {
 };
 
 /**
+ * @typedef {Object} SolowParams
+ * @property {Number} baselineYear - Baseline year for Solow analysis.
+ * @property {Number} analysisYear - Analysis year for Solow analysis.
+ */
+
+/**
  * Computes the Solow Bayes factor B(t) for a cluster of observations that
  * have already been sorted into ascending date order.
  *
@@ -410,14 +409,15 @@ reknitr.yearToSolowTime = function (year) {
  * year) and t_i is the elapsed time of the i-th sighting from the baseline.
  *
  * @param {Object[]} sortedCluster - Observations sorted by eventDate ascending.
+ * @param {SolowParams} solowParams - Solow analysis parameters
  * @return {Number} - Solow Bayes factor B, or 0 if the formula is
  *   ill-defined (e.g. the last sighting is at time 0).
  */
-reknitr.solowBayesFactor = function (sortedCluster) {
-    const T = reknitr.SOLOW_ANALYSIS_YEAR - reknitr.SOLOW_BASELINE_YEAR;
+reknitr.solowBayesFactor = function (sortedCluster, solowParams) {
+    const T = solowParams.analysisYear - solowParams.baselineYear;
     const n = sortedCluster.length;
     const lastYear = reknitr.eventDateToYear(sortedCluster[n - 1].eventDate);
-    const t_n = reknitr.yearToSolowTime(lastYear);
+    const t_n = lastYear - solowParams.baselineYear;
 
     if (t_n <= 0) {
         return 0;
@@ -469,9 +469,10 @@ reknitr.solowBayesFactorToPP = function (B) {
  * @param {Object[]} taxonObs - Observation rows, each with decimalLatitude,
  *   decimalLongitude and eventDate.
  * @param {Number} solowRadius - Clustering radius in metres.
+ * @param {SolowParams} solowParams - Solow analysis parameters
  * @return {ClusterPPResult} - An object containing the array of clusters and a Map from each observation row to its cluster.
  */
-reknitr.computeClusterPPs = function (taxonObs, solowRadius) {
+reknitr.computeClusterPPs = function (taxonObs, solowRadius, solowParams) {
     const rowToCluster = new Map();
 
     const clusters = reknitr.clusterObsByRadius(taxonObs, solowRadius);
@@ -479,7 +480,7 @@ reknitr.computeClusterPPs = function (taxonObs, solowRadius) {
     clusters.forEach(function (cluster, index) {
         cluster.id = index;
         const obsRows = cluster.obsRows.sort(reknitr.obsDateComparator);
-        const B = reknitr.solowBayesFactor(obsRows);
+        const B = reknitr.solowBayesFactor(obsRows, solowParams);
         const pp = reknitr.solowBayesFactorToPP(B);
         cluster.pp = pp;
         obsRows.forEach(function (obs) {
@@ -504,10 +505,11 @@ fluid.registerNamespace("reknitr.solowMapLayer");
  * @param {Object[]} taxonObs - Flat array of observation rows.
  * @param {Number} solowRadius - Clustering radius in metres (used for PP
  *   computation only; the rendered pixel radius is computed separately).
+ * @param {SolowParams} solowParams - Solow analysis parameters
  * @return {Object} - A GeoJSON FeatureCollection of Point features.
  */
-reknitr.solowMapLayer.buildGeoJSON = function (taxonObs, solowRadius) {
-    const {clusters, rowToCluster} = reknitr.computeClusterPPs(taxonObs, solowRadius);
+reknitr.solowMapLayer.buildGeoJSON = function (taxonObs, solowRadius, solowParams) {
+    const {clusters, rowToCluster} = reknitr.computeClusterPPs(taxonObs, solowRadius, solowParams);
 
     const features = Array.from(rowToCluster.entries()).map(([obs, cluster]) => ({
         type: "Feature",
@@ -563,14 +565,15 @@ reknitr.solowMapLayer.metresToPixels = function (radiusMetres, zoom, lat) {
  * @param {Object} that - The reknitr.solowMapLayer component instance.
  * @param {Object[]} taxonObs - Current array of observation rows.
  * @param {Number} solowRadius - Current clustering/drawing radius in metres.
+ * @param {SolowParams} solowParams - Solow analysis parameters
  * @param {Number} layerOpacity - Opacity to render the layer with
  */
-reknitr.solowMapLayer.update = function (that, taxonObs, solowRadius, layerOpacity) {
+reknitr.solowMapLayer.update = function (that, taxonObs, solowRadius, solowParams, layerOpacity) {
     const map = that.map.map;
 
     const withCoords = taxonObs.filter(obs => obs[hortis.cellIdSymbol] !== "0|0");
 
-    const {geoJSON, clusters} = reknitr.solowMapLayer.buildGeoJSON(withCoords, solowRadius);
+    const {geoJSON, clusters} = reknitr.solowMapLayer.buildGeoJSON(withCoords, solowRadius, solowParams);
     that.solowClusters = clusters;
 
     const existingSource = map.getSource(reknitr.solowMapLayer.SOURCE_ID);
@@ -715,14 +718,14 @@ reknitr.solowMapLayer.drawLegend = function (map, that) {
 };
 
 
-// ══════════════════════════════════════════════════════════════════════════════
-// fluid.defaults — component registration
-// ══════════════════════════════════════════════════════════════════════════════
-
 fluid.defaults("reknitr.solowMapLayer", {
     gradeNames: "fluid.component",
     legendStops: 10,
     legendPosition: "top-right",
+    solowParams: {
+        baselineYear: 1859,
+        analysisYear: 2025
+    },
     members: {
         layerVisible: "@expand:signal(true)",
         layerOpacity: "@expand:fluid.computed(reknitr.solowMapLayer.visibleToOpacity, {that}.layerVisible)",
@@ -730,7 +733,8 @@ fluid.defaults("reknitr.solowMapLayer", {
         solowRadius:  "@expand:signal(500)",
         taxonObsRows: "@expand:signal([])",
 
-        updateEffect: "@expand:fluid.effect(reknitr.solowMapLayer.update, {that}, {that}.taxonObsRows, {that}.solowRadius, {that}.layerOpacity, {that}.map.mapLoaded)",
+        updateEffect: `@expand:fluid.effect(reknitr.solowMapLayer.update, {that}, {that}.taxonObsRows, {that}.solowRadius,
+            {that}.options.solowParams, {that}.layerOpacity, {that}.map.mapLoaded)`,
         hoverCluster: "@expand:signal(null)",
 
         control: "@expand:hortis.libreMap.addLegendControl({map}, {that}.options.legendPosition, {that}.drawLegend, {that}.layerVisible)"
