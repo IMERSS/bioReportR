@@ -175,6 +175,8 @@ h2 {
 
     overflow-x: scroll;
     overflow-y: clip;
+
+    flex-shrink: 0;
 }
 
 .mxcw-section-nav .mxcw-hidden {
@@ -634,7 +636,7 @@ h2 {
 .mxcw-solow-radius .mxcw-solow-radius-note {
     color: #a8c8d0;
     font-style: italic;
-    font-size: medium;;
+    font-size: 15px;
     line-height: 1.5;
     margin-top: 4px;
 }
@@ -684,6 +686,7 @@ h2 {
     height: 0;
     min-height: 0;
 }
+
 .mxcw-data {
     z-index: 5;
     opacity: 1;
@@ -691,8 +694,9 @@ h2 {
     margin-bottom: 8px;
     margin-left: 8px;
     height: 20%;
-    min-height: 200px;
+    min-height: 230px;
     display: flex;
+    width: calc(100% - 16px);
 }
 
 
