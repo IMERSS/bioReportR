@@ -121,7 +121,7 @@ fluid.defaults("reknitr.vizLoader.withSolow", {
                 columns: "{vizLoader}.options.taxonColumns",
                 members: {
                     rows: "{vizLoader}.filteredTaxa",
-                    sortColumn: "@expand:signal(direct_solow_ep)",
+                    sortColumn: "@expand:signal(solow_EP)",
                     sortDirection: "@expand:signal(-1)"
                 }
             }
