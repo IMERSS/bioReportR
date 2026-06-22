@@ -63,7 +63,7 @@ fluid.defaults("reknitr.dataPaneWidget", {
         storyPage: "{storyPage}",
         paneHandler: "{paneHandler}"
     },
-    resizableWidthParent: ".mxcw-dataPane",
+    resizableWidthParent: ".mxcw-data",
     dataPaneWidget: true
 });
 
