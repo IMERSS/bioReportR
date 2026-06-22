@@ -1,22 +1,22 @@
 # Átl’ka7tsem/Howe Sound Biosphere Vegetation Analysis
 
-This project hosts a structure for building out and publishing a map-based scrollytelling
+This project hosts a structure for building out and publishing a map-based storymapping
 interface for the [Átl’ka7tsem/Howe Sound Biosphere Reserve](https://en.unesco.org/biosphere/eu-na/atlka7tsem_howe-sound)
 based on [R Markdown](https://rmarkdown.rstudio.com/).
 
 You can browse the published output of this project in these documents:
 
-* [Raw Storymapping Output](https://imerss.github.io/howe-sound-mapping-2025/R-Markdown-AHSBR_Vascular_Plants_Story_Map_2025.html)
-* [Storymapping Reknitted into Scrollytelling Interface](https://imerss.github.io/howe-sound-mapping-2025/R-Markdown-AHSBR_Vascular_Plants_Story_Map_2025-Reknitted.html)
+* [Sample Raw Knitted Output from R Markdown](https://imerss.github.io/howe-sound-mapping-2026/story/Protected.html)
+* [Raw Output Reknitted into Storymapping Interface](https://imerss.github.io/howe-sound-mapping-2026/story/#)
 
-This was built using R and R Markdown, using free tools such as git, R and R studio, and publish and host it for free using
+This was built using R and R Markdown, using free tools such as git, R and R studio, and published and hosted for free using
 [GitHub Pages](https://pages.github.com/).
 
 These files were distilled from work done for the
 [Maxwell Creek Watershed Project](https://transitionsaltspring.com/maxwell-creek-watershed-project/) which is being
 undertaken by [Transition Salt Spring](https://transitionsaltspring.com/).
 
-As a general guide to the potential of storymapping frameworks to use data to tell stories, you can visit two
+To see the potential of storymapping frameworks to use data to tell stories, you can visit two
 thoroughly elaborated [data explorations](https://www.data-arc.org/my-front-page/example-data-explorations/) from
 the dataARC project which present two stories, "Quantifying an ever-changing landscape" and "Data mining the past"
 using two mature storymapping frameworks, [ESRI/ArcGIS Storymaps](https://storymaps.arcgis.com/) and [HTML + Binder/Jupyter](https://mybinder.org/).
@@ -34,7 +34,7 @@ If you haven't worked with this kind of project before, you will need the follow
 
 * R and R studio, installed from [posit's website](https://posit.co/download/rstudio-desktop/)
 
-In order to reknit the markup rendered by R and R markdown, you will also need the following optional tools:
+In order to reknit the markup rendered by R and R markdown, you will also need the following tools:
 
 * node and npm for your platform, installed according to [node's instructions](https://nodejs.org/en/download/).
 
@@ -75,24 +75,15 @@ to GitHub pages and hence publish it by following the steps in
 [section 12.4](https://happygitwithr.com/rstudio-git-github.html#make-local-changes-save-commit) of the guide to using
 GitHub in R studio.
 
-If this all works fine, you can proceed with editing the document in [R-Markdown-Background.Rmd](R-Markdown-Background.Rmd),
-and building out scripts for further maps in [scripts](scripts), vector data as SHP flies in
+If this all works fine, you can proceed with editing the documents in [content/story](content/story),
+and building out scripts for further maps in [scripts](scripts), vector data as SHP files in
 [spatial_data/vectors](spatial_data/vectors) and raster data in [spatial_data/rasters](spatial_data/rasters).
-Please consult the [using Leaflet with R](https://rstudio.github.io/leaflet/) guide for how to add your own map data
+Please consult the [using Mapbox Layers in R](https://plotly.com/r/mapbox-layers/) guide for how to add your own map data
 to your maps.
 
-The sample map contains one simple vector and one simple raster dataset. Each second-level heading in the document -
-rendered using ## in markdown, and an `<h2>` tag in the output markup, will correspond to a separate section in the
-scrollytelling interface. Each leaflet map that you render in such a section will be compiled by the reknitting process
-into a separate map layer on the shared map. Note that not many R leaflet constructs are currently supported by the
-reknitting process - [contact us](https://github.com/IMERSS/r-scrollytelling-template/issues) with details of what you
-would like to see.
-
 Once your customised map knits properly using the R Studio "Knit" process, you can reknit it by running
-
-    npm run build
-
-from the terminal in the project folder. Commit and push the output from this stage using R Studio or git as you prefer.
+"Build Website" from R Studion's "Build" menu.
+Commit and push the output from this stage using R Studio or git as you prefer.
 
 If you want to reknit to different input or output filenames, edit the reknitJobs block in the configuration file
 at [config.json5](config.json5). To customise the markup which frames the reknitted output, you can edit the HTML

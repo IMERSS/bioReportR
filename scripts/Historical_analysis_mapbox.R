@@ -26,7 +26,7 @@ year <- cumulative.history$year
 
 # Plot analysis of historical collection activities
 
-speciesPlot <- plot_ly(height = 240)
+speciesPlot <- plot_ly()
 
 speciesPlot <- speciesPlot %>%
       layout(

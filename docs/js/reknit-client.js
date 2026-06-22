@@ -809,7 +809,8 @@ reknitr.listenPaneHash = function (storyPage, paneName) {
 
 reknitr.layerOpacityProperty = function (layer) {
     return layer.type === "line" ? "line-opacity" :
-        layer.type === "fill" ? "fill-opacity" : null;
+        layer.type === "fill" ? "fill-opacity" :
+            layer.type === "raster" ? "raster-opacity" : null;
 };
 
 reknitr.updateActiveDataPane = function (that, activePane) {
@@ -829,7 +830,7 @@ reknitr.updateActiveMapPane = function (that, map, activePane) {
             // TODO: possible optimisation here from maplibre-gl-dev.js
             //         this.style.setPaintProperty(layerId, name, value, options);
             //         return this._update(true);
-            const origOpacity = layer.paint[opacityProp];
+            const origOpacity = layer.paint?.[opacityProp] ?? 1;
             map.map.setPaintProperty(layer.id, opacityProp, layerVisibility[layer.id] ? origOpacity : 0);
         }
     });
