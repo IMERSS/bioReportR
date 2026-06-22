@@ -29,3 +29,5 @@ Explore the region's flora by selecting from the biogeoclimatic units displayed 
 * Alpine Tundra zone ([CMAunp](#region:CMAunp))
 * Mountain Hemlock zone ([MHmm1](#region:MHmm1), [MHmm2](#region:MHmm2))
 * Coastal Western Hemlock zone ([CWHdm](#region:CWHdm), [CWHds1](#region:CWHds1), [CWHms1](#region:CWHms1), [CWHvm1](#region:CWHvm1), [CWHvm2](#region:CWHvm2), [CWHxm1](#region:CWHxm1))
+
+Biogeoclimatic ecosystem classification (BEC)[https://en.wikipedia.org/wiki/Biogeoclimatic_ecosystem_classification] is an ecological classification framework used in British Columbia to define, describe, and map ecosystem-based units at various scales, from broad, ecologically based climatic regions down to local ecosystems or sites.
