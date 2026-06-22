@@ -1,5 +1,7 @@
 # Content preparation in R and JS before executing Hugo
 
+source("R/utils.R")
+
 # Copy files from data/tabular_data to docs/data/tabular
 
 src_dir <- "tabular_data"
@@ -25,3 +27,6 @@ for (f in files) {
     warning("Failed to copy: ", src)
   }
 }
+
+# Read front matter from .Rmd files and reorganise knitted content for story interface
+run_js("src/js/reknit.js")
