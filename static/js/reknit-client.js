@@ -635,6 +635,7 @@ reknitr.updateSectionNav = function (that, activeSection) {
         hortis.toggleClass(sectionNode, "active", index === activeSection);
         sectionNode.setAttribute("aria-selected", index === activeSection ? "true" : "false");
     });
+    that.locate("sectionNav")[0].querySelector(".active").scrollIntoView();
 };
 
 

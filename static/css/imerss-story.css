@@ -423,7 +423,7 @@ h2 {
     flex-direction: column;
 }
 
-/** Stop the data table having rounded corners since we want to bolt filters onto the top of it **/
+/** Stop the Solow data table having rounded corners since we want to bolt filters onto the top of it **/
 .mxcw-solow-taxa .hortis-dataTable-wrap {
     border: none;
     border-radius: 0;

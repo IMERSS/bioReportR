@@ -567,8 +567,9 @@ reknitr.solowMapLayer.metresToPixels = function (radiusMetres, zoom, lat) {
  * @param {Number} solowRadius - Current clustering/drawing radius in metres.
  * @param {SolowParams} solowParams - Solow analysis parameters
  * @param {Number} layerOpacity - Opacity to render the layer with
+ * @param {Number} zoomLevel - The MapLibre map's current zoom level
  */
-reknitr.solowMapLayer.update = function (that, taxonObs, solowRadius, solowParams, layerOpacity) {
+reknitr.solowMapLayer.update = function (that, taxonObs, solowRadius, solowParams, layerOpacity, zoomLevel) {
     const map = that.map.map;
 
     const withCoords = taxonObs.filter(obs => obs[hortis.cellIdSymbol] !== "0|0");
@@ -589,7 +590,7 @@ reknitr.solowMapLayer.update = function (that, taxonObs, solowRadius, solowParam
     // Compute a representative pixel radius from the centre of the obs bounds,
     // falling back to latitude 49 (BC coast) when there are no observations.
     const centreLat = withCoords.length > 0 ? withCoords[0][hortis.pointSymbol][1] : 49;
-    const pixelRadius = reknitr.solowMapLayer.metresToPixels(solowRadius, map.getZoom(), centreLat);
+    const pixelRadius = reknitr.solowMapLayer.metresToPixels(solowRadius, zoomLevel, centreLat);
 
     const existingLayer = map.getLayer(reknitr.solowMapLayer.LAYER_ID);
     if (existingLayer) {
@@ -734,7 +735,7 @@ fluid.defaults("reknitr.solowMapLayer", {
         taxonObsRows: "@expand:signal([])",
 
         updateEffect: `@expand:fluid.effect(reknitr.solowMapLayer.update, {that}, {that}.taxonObsRows, {that}.solowRadius,
-            {that}.options.solowParams, {that}.layerOpacity, {that}.map.mapLoaded)`,
+            {that}.options.solowParams, {that}.layerOpacity, {that}.map.zoomSignal, {that}.map.mapLoaded)`,
         hoverCluster: "@expand:signal(null)",
 
         control: "@expand:hortis.libreMap.addLegendControl({map}, {that}.options.legendPosition, {that}.drawLegend, {that}.layerVisible)"
