@@ -1,7 +1,7 @@
 {
     "name": "howe-sound-mapping-2026",
     "description": "Howe Sound Biosphere Vegetation Analysis Storymapping in R",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "author": "IMERSS, Transition Salt Spring",
     "scripts": {
         "lint": "fluid-lint-all",
@@ -10,7 +10,7 @@
     "dependencies": {},
     "devDependencies": {
         "infusion": "4.6.0",
-        "imerss-bioinfo": "1.13.0",
+        "imerss-bioinfo": "1.14.0",
         "@imerss/inat-components": "2.0.1",
         "json5": "2.2.3",
         "linkedom": "0.14.25",
