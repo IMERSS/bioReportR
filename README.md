@@ -1,4 +1,12 @@
-# Átl’ka7tsem/Howe Sound Biosphere Vegetation Analysis
+# bioReportR: R framework for exploring regional biodiversity records & trends on the web
+
+This project hosts a bioReportR, a framework based on the [blogdown](https://pkg.yihui.org/blogdown/)
+R package for publishing web sites using the popular [hugo](https://gohugo.io/) framework, for exploring regional
+biodiversity records and identifying taxa at risk. This repository is currently populated with content for
+the UNESCO biosphere region (Átl'ḵa7tsem/Howe Sound) to illustrate the capabilities of the framework. You can see
+this content in its own home at [howe-sound-mapping-2026](https://github.com/IMERSS/howe-sound-mapping-2026).
+
+# Átl’ka7tsem/Howe Sound Biosphere Vegetation Report
 
 This project hosts a structure for building out and publishing a map-based storymapping
 interface for the [Átl’ka7tsem/Howe Sound Biosphere Reserve](https://en.unesco.org/biosphere/eu-na/atlka7tsem_howe-sound)
