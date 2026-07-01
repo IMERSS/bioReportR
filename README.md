@@ -23,8 +23,7 @@ is based on R and R Markdown, using free tools such as git, R and R studio, and 
 R package for publishing web sites using the popular [hugo](https://gohugo.io/) framework.
 
 These files were distilled from work done for the
-[Maxwell Creek Watershed Project](https://transitionsaltspring.com/maxwell-creek-watershed-project/) which is being
-undertaken by [Transition Salt Spring](https://transitionsaltspring.com/).
+[Maxwell Creek Watershed Project](https://imerss.github.io/maxwell/R-Markdown-Courtier-Rewoven.html).
 
 To see the potential of storymapping frameworks to use data to tell stories, you can visit two
 thoroughly elaborated [data explorations](https://www.data-arc.org/my-front-page/example-data-explorations/) from
